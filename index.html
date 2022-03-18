@@ -8,27 +8,38 @@
     <title>Coding Quiz Challenge</title>
   </head>
   <body>
-    <a href="scores.html">View HighScores</a>
-    <div class="clock">
+    <div class="header">
+      <a href="scores.html">View HighScores</a>
+
       <div id="timerCount">100</div>
     </div>
-    <div id="startScreen">
-      <h1>Coding Quiz Challenge</h1>
-      <button id="startBtn">Start Quiz</button>
-    </div>
-    <div id="Question1">
-      <h2 id="ask">Questions</h2>
-      <button id="answer1">Option 1</button>
-      <button id="answer2">Option 2</button>
-      <button id="answer3">Option 3</button>
-      <button id="answer4">Option 4</button>
-    </div>
-    <div id="endScreen">
-      <h3>Game Over</h3>
-      <input type="text" placeholder=" Please enter initials" />
-      <button>Save Score</button>
-    </div>
 
+    <div>
+      <!--Instructions-->
+      <div class="guide">
+        <h1>Coding Quiz Challenge</h1>
+
+        <p>instrutions</p>
+
+        <button id="startBtn">Start Quiz</button>
+      </div>
+      <!--Question w/ choices-->
+      <div class="qBox">
+        <h2 id="questions">Questions</h2>
+        <div id="choice">choice</div>
+      </div>
+
+      <!--final screen-->
+      <div class="finScreen">
+        <h3>You have Finished The Quiz</h3>
+
+        <p>Your score was _____</p>
+
+        <input type="text" placeholder=" Please enter initials" />
+
+        <button>Save Score</button>
+      </div>
+    </div>
     <script type="text/javascript" src="./assets/js/script.js"></script>
   </body>
 </html>
