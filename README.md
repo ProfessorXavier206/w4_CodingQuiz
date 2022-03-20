@@ -11,3 +11,7 @@
 ## 3-17
 
 -created new vars for each element using class and IDs and created an array of question to be randomly generated regardless if button that was clicked was correct or not. Created display question functions for random creating question with choices started working on a function to check if the answer was correct or not and subtracts time if incorrect.
+
+## 3-19
+
+- this project took my a lot longer to finish and didn't meet the requirments and was unable to finish the highscore page and was not able to finish the homework.

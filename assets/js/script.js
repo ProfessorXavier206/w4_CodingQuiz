@@ -1,99 +1,237 @@
-console.log("Loading JS file");
+var containerQuestionEl = document.getElementById("question-container");
+var containerStartEl = document.getElementById("starter-container");
+var containerEndEl = document.getElementById("end-container");
+var containerScoreEl = document.getElementById("score-banner");
+var formInitials = document.getElementById("initials-form");
+var containerHighScoresEl = document.getElementById("high-score-container");
+var ViewHighScoreEl = document.getElementById("view-high-scores");
+var listHighScoreEl = document.getElementById("high-score-list");
+var correctEl = document.getElementById("correct");
+var wrongEl = document.getElementById("wrong");
+//buttons
+var btnStartEl = document.querySelector("#start-game");
+var btnGoBackEl = document.querySelector("#go-back");
+var btnClearScoresEl = document.querySelector("#clear-high-scores");
+//questions/answers element
+var questionEl = document.getElementById("question");
+var answerbuttonsEl = document.getElementById("answer-buttons");
+var timerEl = document.querySelector("#timer");
+var score = 0;
+var timeleft;
+var gameover;
+timerEl.innerText = 0;
 
-//VARIABLES
-var timerEl = document.getElementById("timerCount");
-var start = document.getElementById("startBtn");
-var guide = document.getElementsByClassName("guide");
-var qBox = document.getElementsByClassName("qBox");
-var finScreen = document.getElementsByClassName("finScreen");
+//High Score Array
+var HighScores = [];
 
-var questionsEl = document.getElementById("questions");
-var choiceEl = document.getElementById("choice");
+//assign array details for questions
+var arrayShuffledQuestions;
+var QuestionIndex = 0;
 
-var time;
-var timerNum;
-
-//list all Questions and Choices
-var quizQuestions = [
+// The array of questions for our quiz game.
+var questions = [
   {
-    question: "What is HTML?",
-    choices: ["A", "B", "C", "D"],
-    answer: "C",
+    q: "Arrays in Javascript can be used to store __________.",
+    a: "4. all of the above",
+    choices: [
+      { choice: "1. numbers" },
+      { choice: "2. booleans" },
+      { choice: "3. strings" },
+      { choice: "4. all of the above" },
+    ],
   },
   {
-    question: "What is Question 2 ?",
-    choices: ["A", "B", "C", "D"],
-    answer: "C",
+    q: "Inside which HTML element do we put the javascript?",
+    a: "3. <script>",
+    choices: [
+      { choice: "1. <h1>" },
+      { choice: "2. <js>" },
+      { choice: "3. <script>" },
+      { choice: "4. <head>" },
+    ],
   },
   {
-    question: "What is HTML?",
-    choices: ["A", "B", "C", "D"],
-    answer: "C",
+    q: "In the code -- setinterval(time(),1000) -- what is time()?",
+    a: "1. callback function",
+    choices: [
+      { choice: "1. callback function" },
+      { choice: "2. undefined" },
+      { choice: "3. variable" },
+      { choice: "4. all of the above" },
+    ],
   },
   {
-    question: "What is Question 2 ?",
-    choices: ["A", "B", "C", "D"],
-    answer: "C",
+    q: "What syntax would call a function?",
+    a: "4. function()",
+    choices: [
+      { choice: "1. var function" },
+      { choice: "2. function" },
+      { choice: "3. call function" },
+      { choice: "4. function()" },
+    ],
+  },
+  {
+    q: "When did javascript first appear?",
+    a: "1. 1995",
+    choices: [
+      { choice: "1. 1995" },
+      { choice: "2. Roaring twenties" },
+      { choice: "3. 2005" },
+      { choice: "4. 2000" },
+    ],
+  },
+  {
+    q: "What does DOM stand for?",
+    a: "2. Document Object Model",
+    choices: [
+      { choice: "1. Do Overnight Modules" },
+      { choice: "2. Document Object Model" },
+      { choice: "3. Divas Obviously Model" },
+      { choice: "4. Do Oo Mo" },
+    ],
+  },
+  {
+    q: "What is getItem commonly used for?",
+    a: "2. local storage",
+    choices: [
+      { choice: "1. adding drama" },
+      { choice: "2. local storage" },
+      { choice: "3. online shopping" },
+      { choice: "4. naming a variable" },
+    ],
   },
 ];
-//var currentQIndex = 0; //starting index
 
-var questionIndex = Math.floor(Math.random() * quizQuestions.length);
-//console.log(questionIndex);
-// console.log(quizQuestions[1]);
-// console.log(quizQuestions[1].answer);
-// console.log(quizQuestions[1].question);
-// console.log(quizQuestions[1].choices[2]);
+//if go back button is hit on high score page
+var renderStartPage = function () {
+  containerHighScoresEl.classList.add("hide");
+  containerHighScoresEl.classList.remove("show");
+  containerStartEl.classList.remove("hide");
+  containerStartEl.classList.add("show");
+  containerScoreEl.removeChild(containerScoreEl.lastChild);
+  QuestionIndex = 0;
+  gameover = "";
+  timerEl.textContent = 0;
+  score = 0;
 
-//Start Quiz
-function startQuiz() {
-  startTime();
-  displayQuestions();
-}
+  if ((correctEl.className = "show")) {
+    correctEl.classList.remove("show");
+    correctEl.classList.add("hide");
+  }
+  if ((wrongEl.className = "show")) {
+    wrongEl.classList.remove("show");
+    wrongEl.classList.add("hide");
+  }
+};
 
-//start the clock
-function startTime() {
-  timerNum = 100;
-  timeInterval = setInterval(function () {
-    timerNum--;
-    timerEl.textContent = timerNum;
+//every second, check if game-over is true, or if there is time left. Start time at 30.
+var setTime = function () {
+  timeleft = 30;
 
-    if (timerNum === 0) {
-      clearInterval(timeInterval);
+  var timercheck = setInterval(function () {
+    timerEl.innerText = timeleft;
+    timeleft--;
+
+    if (gameover) {
+      clearInterval(timercheck);
+    }
+
+    if (timeleft < 0) {
+      showScore();
+      timerEl.innerText = 0;
+      clearInterval(timercheck);
     }
   }, 1000);
-}
+};
 
-function displayQuestions() {
-  questionsEl.textContent = quizQuestions[questionIndex].question;
-  //choiceEl.textContent = quizQuestions[1].choices;
+var startGame = function () {
+  //add classes to show/hide start and quiz screen
+  containerStartEl.classList.add("hide");
+  containerStartEl.classList.remove("show");
+  containerQuestionEl.classList.remove("hide");
+  containerQuestionEl.classList.add("show");
+  //Shuffle the questions so they show in random order
+  arrayShuffledQuestions = questions.sort(() => Math.random() - 0.5);
+  setTime();
+  setQuestion();
+};
 
-  //loop through all choices for a question
-  for (var i = 0; i < quizQuestions[questionIndex].choices.length; i++) {
-    //create a button for each option
-    var btn = document.createElement("button");
-    //setting the text for the button
-    btn.textContent = quizQuestions[questionIndex].choices[i];
-    //add event listiner
-    btn.addEventListener("click", checkChoice);
-    //append it to the div choice
-    choiceEl.append(btn);
+//set next question for quiz
+var setQuestion = function () {
+  resetAnswers();
+  displayQuestion(arrayShuffledQuestions[QuestionIndex]);
+};
+
+//remove answer buttons
+var resetAnswers = function () {
+  while (answerbuttonsEl.firstChild) {
+    answerbuttonsEl.removeChild(answerbuttonsEl.firstChild);
   }
-}
+};
 
-function checkChoice() {
-  //console.log("Button clicked is ", this.textContent);
-  var answer = quizQuestions[questionIndex].answer;
-  if (this.textContent === answer) {
-    alert("Correct!!");
+//display question information (including answer buttons)
+var displayQuestion = function (index) {
+  questionEl.innerText = index.q;
+  for (var i = 0; i < index.choices.length; i++) {
+    var answerbutton = document.createElement("button");
+    answerbutton.innerText = index.choices[i].choice;
+    answerbutton.classList.add("btn");
+    answerbutton.classList.add("answerbtn");
+    answerbutton.addEventListener("click", answerCheck);
+    answerbuttonsEl.appendChild(answerbutton);
+  }
+};
+//display correct! on screen
+var answerCorrect = function () {
+  if ((correctEl.className = "hide")) {
+    correctEl.classList.remove("hide");
+    correctEl.classList.add("banner");
+    wrongEl.classList.remove("banner");
+    wrongEl.classList.add("hide");
+  }
+};
+//display wrong! on screen
+var answerWrong = function () {
+  if ((wrongEl.className = "hide")) {
+    wrongEl.classList.remove("hide");
+    wrongEl.classList.add("banner");
+    correctEl.classList.remove("banner");
+    correctEl.classList.add("hide");
+  }
+};
+
+//check if answer is correct
+var answerCheck = function (event) {
+  var selectedanswer = event.target;
+  if (arrayShuffledQuestions[QuestionIndex].a === selectedanswer.innerText) {
+    answerCorrect();
+    score = score + 7;
   } else {
-    alert("you can do better !!");
+    answerWrong();
+    score = score - 1;
+    timeleft = timeleft - 3;
   }
-  //generate random index
-  //call displayQ
-}
 
-//hide divs or show divs
+  //go to next question, check if there is more questions
+  QuestionIndex++;
+  if (arrayShuffledQuestions.length > QuestionIndex + 1) {
+    setQuestion();
+  } else {
+    gameover = "true";
+    showScore();
+  }
+};
 
-//EVENT LISTENER
-start.addEventListener("click", startQuiz);
+//Display total score screen at end of game
+var showScore = function () {
+  containerQuestionEl.classList.add("hide");
+  containerEndEl.classList.remove("hide");
+  containerEndEl.classList.add("show");
+
+  var scoreDisplay = document.createElement("p");
+  scoreDisplay.innerText = "Your final score is " + score + "!";
+  containerScoreEl.appendChild(scoreDisplay);
+};
+
+//on start click, start game
+btnStartEl.addEventListener("click", startGame);
